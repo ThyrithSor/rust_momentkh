@@ -65,7 +65,7 @@ pub fn គណនាចំនួនថ្ងៃពីដើមខែមិគស�
     ចំនួនថ្ងៃ
 }
 
-pub fn គណនាឆ្នាំបុរាណសករាជថ្មីក្នុងគ្រិស្តសករាជ<
+fn គណនាឆ្នាំបុរាណសករាជថ្មីក្នុងគ្រិស្តសករាជ<
     T: Into<i128>,
 >(
     gregorian_year: T,
@@ -81,7 +81,7 @@ pub fn គណនាឆ្នាំមហាសករាជពីចុល្ល�
     return ចុល្លសករាជ.into() + 565i128;
 }
 
-pub fn គណនាឆ្នាំមហាសករាជថ្មីក្នុងគ្រិស្តសករាជ<
+fn គណនាឆ្នាំមហាសករាជថ្មីក្នុងគ្រិស្តសករាជ<
     T: Into<i128>,
 >(
     gregorian_year: T,
@@ -95,10 +95,16 @@ pub fn គណនាឆ្នាំចុល្លសករាជថ្មីក�
     return gregorian_year - 638
 }
 
-pub fn គណនាឆ្នាំចុល្លសករាជថ្មីពីពុទ្ធសករាជថ្មី(
+fn គណនាឆ្នាំចុល្លសករាជថ្មីពីពុទ្ធសករាជថ្មី(
     ពុទ្ធសករាជ: i128,
 ) -> i128 {
     return ពុទ្ធសករាជ - 1182;
+}
+
+fn គណនាឆ្នាំពុទ្ធសករាជថ្មីពីចុល្លសករាជថ្មី(
+    ចុល្លសករាជ: i128,
+) -> i128 {
+    return ចុល្លសករាជ + 1182;
 }
 
 pub fn parse_iso_date(d: &str) -> Result<NaiveDate, chrono::ParseError> {
@@ -132,7 +138,7 @@ pub fn lunar_day_from_number(num: u8) -> Result<LunarDay, String> {
     })
 }
 
-#[derive(Debug, PartialEq, EnumIter, Clone)]
+#[derive(Debug, PartialEq, EnumIter, Clone, Copy)]
 pub enum សត្វ {
     ជូត,
     ឆ្លូវ,
@@ -178,7 +184,7 @@ impl សត្វ {
     }
 }
 
-#[derive(Debug, PartialEq, EnumIter, Clone)]
+#[derive(Debug, PartialEq, EnumIter, Clone, Copy)]
 pub enum ស័ក {
     ឯកស័ក,
     ទោស័ក,
@@ -220,10 +226,10 @@ impl ស័ក {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Time {
-    hour: u8,
-    minute: u8,
+    pub hour: u8,
+    pub minute: u8,
 }
 
 impl Time {
@@ -235,7 +241,7 @@ impl Time {
     }
 
     pub fn គណនានាទីសរុប(&self) -> u16 {
-        (self.hour * 60 + self.minute) as u16
+        self.hour as u16 * 60 + self.minute as u16
     }
 }
 
@@ -245,7 +251,7 @@ pub struct ឆាយាអាទិត្យ {
     pub ឆាយា: u16,
 }
 
-#[derive(Debug, PartialEq, EnumIter, Clone)]
+#[derive(Debug, PartialEq, EnumIter, Clone, Copy)]
 pub enum LunarMonth {
     មិគសិរ,
     បុស្ស,
@@ -379,13 +385,13 @@ impl LunarMonth {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum MoonStatus {
     កើត,
     រោច,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct LunarDay {
     pub order: u8,
     pub moon_status: MoonStatus,
@@ -416,7 +422,7 @@ impl LunarDay {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct LunarDate {
     pub day: LunarDay,
     pub month: LunarMonth,
@@ -658,6 +664,24 @@ impl សុរិយាត្រឡើងស័ក {
         }
     }
 
+    pub fn គណនាថ្ងៃចូលឆ្នាំ(&self) -> LunarDate {
+        let ថ្ងៃឡើងស័ក = self.គណនាថ្ងៃឡើងស័ក();
+        let ចំនួនថ្ងៃវ័នបត = self.គណនាចំនួនថ្ងៃវ័នបត().len() as u8;
+        let លំដាប់ថ្ងៃឡើងស័កក្នុងខែ = ថ្ងៃឡើងស័ក.day.រាប់ថ្ងៃពីដើមខែ();
+        if លំដាប់ថ្ងៃឡើងស័កក្នុងខែ > ចំនួនថ្ងៃវ័នបត + 1 {
+            LunarDate {
+                day: LunarDay::from_day_in_month(លំដាប់ថ្ងៃឡើងស័កក្នុងខែ - ចំនួនថ្ងៃវ័នបត - 1),
+                month: ថ្ងៃឡើងស័ក.month,
+            }
+        } else {
+            let month = ថ្ងៃឡើងស័ក.month.get_previous_month(self.ចុល្លសករាជ);
+            LunarDate {
+                day: LunarDay::from_day_in_month(month.get_total_day(self.ចុល្លសករាជ) + លំដាប់ថ្ងៃឡើងស័កក្នុងខែ - ចំនួនថ្ងៃវ័នបត - 1),
+                month: month,
+            }
+        }
+    }
+
     /// សុទិនជាចំនួនថ្ងៃ គិតថ្ងៃបន្ទាប់នៃថ្ងៃឡើងស័កឆ្នាំចាស់ មកដល់ថ្ងៃដែលយើងចង់គណនាមធ្យមព្រះអាទិត្យ
     /// បន្ទាប់ពីថ្ងៃឡើងស័ក១ថ្ងៃ គឺសុទិន = 1
     /// ដូច្នេះបើឆ្នាំមាន ៣៦៥ ថ្ងៃ ថ្ងៃដែលចូលឆ្នាំ អាចសុទិន ៣៦២ ឬ ៣៦៣
@@ -742,7 +766,7 @@ impl សុរិយាត្រឡើងស័ក {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct KhmerDate {
     pub gregorian_date: NaiveDate,
     pub lunar_date: LunarDate,
@@ -751,6 +775,7 @@ pub struct KhmerDate {
     pub ពុទ្ធសករាជ: i128,
     pub ស័ក: ស័ក,
     pub សត្វ: សត្វ,
+    pub time: Option<Time>,
 }
 
 impl KhmerDate {
@@ -769,6 +794,7 @@ impl KhmerDate {
             ស័ក: ស័ក::ឯកស័ក,
             ចុល្លសករាជ: 1261,
             មហាសករាជ: 1916,
+            time: None,
         }
     }
 
@@ -781,10 +807,10 @@ impl KhmerDate {
     }
 
     pub fn subtract(&self, days: i128) -> Self {
-        self.add(-1 * days)
+        self.add(-1 * days, None)
     }
 
-    pub fn add(&self, days: i128) -> Self {
+    pub fn add(&self, days: i128, time: Option<Time>) -> Self {
         let mut addition = days;
         let mut current_date = self.lunar_date.clone();
         let mut ចុល្លសករាជថ្មី = គណនាឆ្នាំចុល្លសករាជថ្មីក្នុងគ្រិស្តសករាជ( self.gregorian_date.year() as i128);
@@ -895,14 +921,25 @@ impl KhmerDate {
         _ស័ក = if _ស័ក == 0 { 10 } else { _ស័ក };
 
         let ថ្ងៃចូលឆ្នាំ = _សុរិយាត្រឡើងស័ក
-            .គណនាថ្ងៃឡើងស័ក()
+            .គណនាថ្ងៃចូលឆ្នាំ()
             .រាប់ថ្ងៃពីដើមខែមិគសិរ(ចុល្លសករាជថ្មី);
         let mut _សត្វ = self.សត្វ.to_num() as i128
             + (if រាប់ពីដើមមិគសិរ < ថ្ងៃចូលឆ្នាំ
             {
                 ចុល្លសករាជថ្មី - 1 - self.ចុល្លសករាជ
-            } else {
+            } else if រាប់ពីដើមមិគសិរ > ថ្ងៃចូលឆ្នាំ {
                 ចុល្លសករាជថ្មី - self.ចុល្លសករាជ
+            } else {
+                if let Some(time) = self.time {
+                    let នាទីចូលឆ្នាំ = _សុរិយាត្រឡើងស័ក.គណនាម៉ោងទទួលទេវតា().គណនានាទីសរុប();
+                    if time.គណនានាទីសរុប() < នាទីចូលឆ្នាំ {
+                        ចុល្លសករាជថ្មី - 1 - self.ចុល្លសករាជ
+                    } else {
+                        ចុល្លសករាជថ្មី - self.ចុល្លសករាជ
+                    }
+                } else {
+                    ចុល្លសករាជថ្មី - self.ចុល្លសករាជ
+                }
             });
         _សត្វ = modulo!(_សត្វ, 12);
         _សត្វ = if _សត្វ == 0 {
@@ -927,16 +964,37 @@ impl KhmerDate {
             ពុទ្ធសករាជ: ពុទ្ធសករាជ,
             ស័ក: ស័ក::from_num(_ស័ក as u8),
             សត្វ: សត្វ::from_num(_សត្វ as u8),
+            time: time,
         }
     }
 
-    pub fn from_naive_date(date: NaiveDate) -> Self {
-        let duration_from_epoche = date.signed_duration_since(Self::get_epoch().gregorian_date);
-        Self::get_epoch().add(duration_from_epoche.num_days() as i128)
+    pub fn គណនាវេលាចូលឆ្នាំបន្ទាប់(&self) -> Self {
+        let mut ចុល្លសករាជ = គណនាឆ្នាំចុល្លសករាជថ្មីក្នុងគ្រិស្តសករាជ(self.gregorian_date.year() as i128);
+        loop {
+            let _សុរិយាត្រឡើងស័ក = សុរិយាត្រឡើងស័ក::from_jolasakrach(ចុល្លសករាជ);
+            let វេលាចូលឆ្នាំ = Self::from_khmer_date_time(គណនាឆ្នាំពុទ្ធសករាជថ្មីពីចុល្លសករាជថ្មី(ចុល្លសករាជ) - 1, _សុរិយាត្រឡើងស័ក.គណនាថ្ងៃចូលឆ្នាំ(), Some(_សុរិយាត្រឡើងស័ក.គណនាម៉ោងទទួលទេវតា()));
+            let mut compared_minutes = វេលាចូលឆ្នាំ.gregorian_date.signed_duration_since(self.gregorian_date).num_minutes();
+
+            if let Some(new_year_time) = វេលាចូលឆ្នាំ.time {
+                if let Some(time) = self.time {
+                    compared_minutes += new_year_time.គណនានាទីសរុប() as i64 - time.គណនានាទីសរុប() as i64;
+                }
+            }
+
+            if compared_minutes > 0 {
+                break វេលាចូលឆ្នាំ;
+            }
+            ចុល្លសករាជ += 1;
+        }
     }
 
-    pub fn from_khmer_date(
-        ពុទ្ធសករាជ: i128, ថ្ងៃខែ: LunarDate
+    pub fn from_naive_date_time(date: NaiveDate, time: Option<Time>) -> Self {
+        let duration_from_epoche = date.signed_duration_since(Self::get_epoch().gregorian_date);
+        Self::get_epoch().add(duration_from_epoche.num_days() as i128, time)
+    }
+
+    pub fn from_khmer_date_time(
+        ពុទ្ធសករាជ: i128, ថ្ងៃខែ: LunarDate, time: Option<Time>
     ) -> Self {
         let epoch = KhmerDate::get_epoch();
         let mut marked_date = epoch.clone().lunar_date;
@@ -970,6 +1028,6 @@ impl KhmerDate {
             }
         }
 
-        epoch.add(different)
+        epoch.add(different, time)
     }
 }
