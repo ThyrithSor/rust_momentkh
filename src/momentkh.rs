@@ -1,68 +1,100 @@
 #![allow(dead_code)]
 
 use chrono::{Datelike, Days, NaiveDate, Weekday};
+use phf_macros::phf_map;
 use std::ops::{Range, RangeInclusive};
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
-const EXCLUSION: [(i32, &'static str, Time); 7] = [
-    (
-        1879,
-        "12-04-1879",
+macro_rules! ត្រូវនឹងថ្ងៃ {
+    (($ថ្ងៃទី:expr)($ខ្នើត:literal) (ខែ:literal)($ខែ:expr)) => {
+        LunarDate {
+            day: LunarDay {
+                order: $ថ្ងៃទី,
+                moon_status: MoonStatus::$ខ្នើត,
+            },
+            month: LunarMonth::$ខែ,
+        }
+    };
+}
+
+macro_rules! វេលា {
+    (($hour:expr):($minute:expr)) => {
         Time {
-            hour: 11,
-            minute: 36,
-        },
-    ),
-    (
-        1897,
-        "13-04-1897",
-        Time {
-            hour: 02,
-            minute: 00,
-        },
-    ),
-    (
-        2011,
-        "14-04-2011",
-        Time {
-            hour: 13,
-            minute: 12,
-        },
-    ),
-    (
-        2012,
-        "14-04-2012",
-        Time {
-            hour: 19,
-            minute: 11,
-        },
-    ),
-    (
-        2013,
-        "14-04-2013",
-        Time {
-            hour: 02,
-            minute: 12,
-        },
-    ),
-    (
-        2014,
-        "14-04-2014",
-        Time {
-            hour: 08,
-            minute: 07,
-        },
-    ),
-    (
-        2015,
-        "14-04-2015",
-        Time {
-            hour: 14,
-            minute: 02,
-        },
-    ),
-];
+            hour: $hour,
+            minute: $minute,
+        }
+    };
+}
+
+const EXCLUSION: phf::Map<&'static str, (LunarDate, Time)> = phf_map! {
+    "1879" => (ត្រូវនឹងថ្ងៃ!(៦រោច ខែចេត្រ), វេលា!(11:36)),
+    "1897" => (ត្រូវនឹងថ្ងៃ!(១០កើត ខែចេត្រ), វេលា!(2:00)),
+    "2011" => (ត្រូវនឹងថ្ងៃ!(១១កើត ខែចេត្រ), វេលា!(13:12)),
+    "2012" => (ត្រូវនឹងថ្ងៃ!(៧រោច ខែចេត្រ), វេលា!(19:11)),
+    "2013" => (ត្រូវនឹងថ្ងៃ!(៤កើត ខែចេត្រ), វេលា!(2:12)),
+    "2014" => (ត្រូវនឹងថ្ងៃ!(១៥កើត ខែចេត្រ), វេលា!(8:07)),
+    "2015" => (ត្រូវនឹងថ្ងៃ!(១១រោច ខែចេត្រ), វេលា!(14:02)),
+};
+
+// const EXCLUSION1: [(i32, &'static str, Time); 7] = [
+//     (
+//         1879,
+//         "12-04-1879",
+//         Time {
+//             hour: 11,
+//             minute: 36,
+//         },
+//     ),
+//     (
+//         1897,
+//         "13-04-1897",
+//         Time {
+//             hour: 02,
+//             minute: 00,
+//         },
+//     ),
+//     (
+//         2011,
+//         "14-04-2011",
+//         Time {
+//             hour: 13,
+//             minute: 12,
+//         },
+//     ),
+//     (
+//         2012,
+//         "14-04-2012",
+//         Time {
+//             hour: 19,
+//             minute: 11,
+//         },
+//     ),
+//     (
+//         2013,
+//         "14-04-2013",
+//         Time {
+//             hour: 02,
+//             minute: 12,
+//         },
+//     ),
+//     (
+//         2014,
+//         "14-04-2014",
+//         Time {
+//             hour: 08,
+//             minute: 07,
+//         },
+//     ),
+//     (
+//         2015,
+//         "14-04-2015",
+//         Time {
+//             hour: 14,
+//             minute: 02,
+//         },
+//     ),
+// ];
 
 const លំដាប់ថ្ងៃ១រោចខែពិសាខ: u8 = 29 + 30 + 29 + 30 + 29 + 15;
 
