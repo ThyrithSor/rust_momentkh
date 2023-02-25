@@ -5,6 +5,65 @@ use std::ops::{Range, RangeInclusive};
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
+const EXCLUSION: [(i32, &'static str, Time); 7] = [
+    (
+        1879,
+        "12-04-1879",
+        Time {
+            hour: 11,
+            minute: 36,
+        },
+    ),
+    (
+        1897,
+        "13-04-1897",
+        Time {
+            hour: 02,
+            minute: 00,
+        },
+    ),
+    (
+        2011,
+        "14-04-2011",
+        Time {
+            hour: 13,
+            minute: 12,
+        },
+    ),
+    (
+        2012,
+        "14-04-2012",
+        Time {
+            hour: 19,
+            minute: 11,
+        },
+    ),
+    (
+        2013,
+        "14-04-2013",
+        Time {
+            hour: 02,
+            minute: 12,
+        },
+    ),
+    (
+        2014,
+        "14-04-2014",
+        Time {
+            hour: 08,
+            minute: 07,
+        },
+    ),
+    (
+        2015,
+        "14-04-2015",
+        Time {
+            hour: 14,
+            minute: 02,
+        },
+    ),
+];
+
 const លំដាប់ថ្ងៃ១រោចខែពិសាខ: u8 = 29 + 30 + 29 + 30 + 29 + 15;
 
 const តារាងឆាយាអាទិត្យ: [ឆាយាអាទិត្យ; 7] = [
@@ -92,7 +151,7 @@ fn គណនាឆ្នាំមហាសករាជថ្មីក្នុ�
 pub fn គណនាឆ្នាំចុល្លសករាជថ្មីក្នុងគ្រិស្តសករាជ(
     gregorian_year: i128,
 ) -> i128 {
-    return gregorian_year - 638
+    return gregorian_year - 638;
 }
 
 fn គណនាឆ្នាំចុល្លសករាជថ្មីពីពុទ្ធសករាជថ្មី(
@@ -290,7 +349,7 @@ impl LunarMonth {
     }
     pub fn compare(&self, another: LunarMonth) -> i8 {
         if another == *self {
-           return  0;
+            return 0;
         } else if self.to_number() > another.to_number() {
             return 1;
         } else {
@@ -668,7 +727,8 @@ impl សុរិយាត្រឡើងស័ក {
         let ថ្ងៃឡើងស័ក = self.គណនាថ្ងៃឡើងស័ក();
         let ចំនួនថ្ងៃវ័នបត = self.គណនាចំនួនថ្ងៃវ័នបត().len() as u8;
         let លំដាប់ថ្ងៃឡើងស័កក្នុងខែ = ថ្ងៃឡើងស័ក.day.រាប់ថ្ងៃពីដើមខែ();
-        if លំដាប់ថ្ងៃឡើងស័កក្នុងខែ > ចំនួនថ្ងៃវ័នបត + 1 {
+        if លំដាប់ថ្ងៃឡើងស័កក្នុងខែ > ចំនួនថ្ងៃវ័នបត + 1
+        {
             LunarDate {
                 day: LunarDay::from_day_in_month(លំដាប់ថ្ងៃឡើងស័កក្នុងខែ - ចំនួនថ្ងៃវ័នបត - 1),
                 month: ថ្ងៃឡើងស័ក.month,
@@ -676,10 +736,23 @@ impl សុរិយាត្រឡើងស័ក {
         } else {
             let month = ថ្ងៃឡើងស័ក.month.get_previous_month(self.ចុល្លសករាជ);
             LunarDate {
-                day: LunarDay::from_day_in_month(month.get_total_day(self.ចុល្លសករាជ) + លំដាប់ថ្ងៃឡើងស័កក្នុងខែ - ចំនួនថ្ងៃវ័នបត - 1),
+                day: LunarDay::from_day_in_month(
+                    month.get_total_day(self.ចុល្លសករាជ)
+                        + លំដាប់ថ្ងៃឡើងស័កក្នុងខែ
+                        - ចំនួនថ្ងៃវ័នបត
+                        - 1,
+                ),
                 month: month,
             }
         }
+    }
+
+    pub fn គណនាវេលាចូលឆ្នាំ(&self) -> KhmerDate {
+        let ពស = គណនាឆ្នាំពុទ្ធសករាជថ្មីពីចុល្លសករាជថ្មី(self.ចុល្លសករាជ) - 1;
+        let ថ្ងៃចូលឆ្នាំ = self.គណនាថ្ងៃចូលឆ្នាំ();
+        let ម៉ោងទទួលទេវតា = self.គណនាម៉ោងទទួលទេវតា();
+        let result = KhmerDate::from_khmer_date_time(ពស, ថ្ងៃចូលឆ្នាំ, Some(ម៉ោងទទួលទេវតា));
+        return result;
     }
 
     /// សុទិនជាចំនួនថ្ងៃ គិតថ្ងៃបន្ទាប់នៃថ្ងៃឡើងស័កឆ្នាំចាស់ មកដល់ថ្ងៃដែលយើងចង់គណនាមធ្យមព្រះអាទិត្យ
@@ -819,7 +892,7 @@ impl KhmerDate {
             let day_in_year = current_date
                 .រាប់ថ្ងៃពីដើមខែមិគសិរ(ចុល្លសករាជថ្មី);
             let max_day_in_year = គណនាចំនួនថ្ងៃពីដើមខែមិគសិរឆ្នាំចាស់ដល់ចុងកក្ដិកឆ្នាំថ្មី(ចុល្លសករាជថ្មី);
-            // println!("max_day_in_year {ចុល្លសករាជថ្មី} is {max_day_in_year}");
+
             if addition < 0 {
                 if day_in_year as i128 + addition > 0 {
                     let day_in_month = current_date.day.រាប់ថ្ងៃពីដើមខែ();
@@ -836,8 +909,8 @@ impl KhmerDate {
                             month: previous_month,
                             day: LunarDay::from_day_in_month(1),
                         };
-                        addition = addition - (day_in_month as i128) + 1
-                            - (max_day_in_previous_month as i128);
+                        addition = addition + (day_in_month as i128) - 1
+                            + (max_day_in_previous_month as i128);
                     }
                 } else {
                     let max_day_in_previous_year = គណនាចំនួនថ្ងៃពីដើមខែមិគសិរឆ្នាំចាស់ដល់ចុងកក្ដិកឆ្នាំថ្មី(ចុល្លសករាជថ្មី - 1);
@@ -846,7 +919,7 @@ impl KhmerDate {
                         month: LunarMonth::មិគសិរ,
                         day: LunarDay::from_day_in_month(1),
                     };
-                    addition = addition - (day_in_year as i128) + 1 - max_day_in_previous_year;
+                    addition = addition + (day_in_year as i128) - 1 + max_day_in_previous_year;
                     ចុល្លសករាជថ្មី = ចុល្លសករាជថ្មី - 1;
                 }
             } else if addition > 0 {
@@ -909,7 +982,8 @@ impl KhmerDate {
                 ចុល្លសករាជ,
             );
 
-        let ពុទ្ធសករាជ = if រាប់ពីដើមមិគសិរ < លំដាប់ថ្ងៃ១រោចខែពិសាខ as u16
+        let ពុទ្ធសករាជ = if រាប់ពីដើមមិគសិរ
+            < លំដាប់ថ្ងៃ១រោចខែពិសាខ as u16
         {
             ចុល្លសករាជថ្មី + 1181
         } else {
@@ -927,12 +1001,14 @@ impl KhmerDate {
             + (if រាប់ពីដើមមិគសិរ < ថ្ងៃចូលឆ្នាំ
             {
                 ចុល្លសករាជថ្មី - 1 - self.ចុល្លសករាជ
-            } else if រាប់ពីដើមមិគសិរ > ថ្ងៃចូលឆ្នាំ {
+            } else if រាប់ពីដើមមិគសិរ > ថ្ងៃចូលឆ្នាំ
+            {
                 ចុល្លសករាជថ្មី - self.ចុល្លសករាជ
             } else {
                 if let Some(time) = self.time {
                     let នាទីចូលឆ្នាំ = _សុរិយាត្រឡើងស័ក.គណនាម៉ោងទទួលទេវតា().គណនានាទីសរុប();
-                    if time.គណនានាទីសរុប() < នាទីចូលឆ្នាំ {
+                    if time.គណនានាទីសរុប() < នាទីចូលឆ្នាំ
+                    {
                         ចុល្លសករាជថ្មី - 1 - self.ចុល្លសករាជ
                     } else {
                         ចុល្លសករាជថ្មី - self.ចុល្លសករាជ
@@ -955,7 +1031,7 @@ impl KhmerDate {
                     .unwrap()
             } else {
                 self.gregorian_date
-                    .checked_sub_days(Days::new(days as u64))
+                    .checked_sub_days(Days::new(days.abs() as u64))
                     .unwrap()
             },
             lunar_date: current_date,
@@ -971,13 +1047,18 @@ impl KhmerDate {
     pub fn គណនាវេលាចូលឆ្នាំបន្ទាប់(&self) -> Self {
         let mut ចុល្លសករាជ = គណនាឆ្នាំចុល្លសករាជថ្មីក្នុងគ្រិស្តសករាជ(self.gregorian_date.year() as i128);
         loop {
-            let _សុរិយាត្រឡើងស័ក = សុរិយាត្រឡើងស័ក::from_jolasakrach(ចុល្លសករាជ);
+            let _សុរិយាត្រឡើងស័ក =
+                សុរិយាត្រឡើងស័ក::from_jolasakrach(ចុល្លសករាជ);
             let វេលាចូលឆ្នាំ = Self::from_khmer_date_time(គណនាឆ្នាំពុទ្ធសករាជថ្មីពីចុល្លសករាជថ្មី(ចុល្លសករាជ) - 1, _សុរិយាត្រឡើងស័ក.គណនាថ្ងៃចូលឆ្នាំ(), Some(_សុរិយាត្រឡើងស័ក.គណនាម៉ោងទទួលទេវតា()));
-            let mut compared_minutes = វេលាចូលឆ្នាំ.gregorian_date.signed_duration_since(self.gregorian_date).num_minutes();
+            let mut compared_minutes = វេលាចូលឆ្នាំ
+                .gregorian_date
+                .signed_duration_since(self.gregorian_date)
+                .num_minutes();
 
             if let Some(new_year_time) = វេលាចូលឆ្នាំ.time {
                 if let Some(time) = self.time {
-                    compared_minutes += new_year_time.គណនានាទីសរុប() as i64 - time.គណនានាទីសរុប() as i64;
+                    compared_minutes +=
+                        new_year_time.គណនានាទីសរុប() as i64 - time.គណនានាទីសរុប() as i64;
                 }
             }
 
@@ -1001,14 +1082,23 @@ impl KhmerDate {
         let mut marked_ពស_ថ្មី = epoch.clone().ពុទ្ធសករាជ + 1;
         let mut different = 0i128;
         let ពីដើមមិគសិរ = ថ្ងៃខែ.រាប់ថ្ងៃពីដើមខែមិគសិរ(0);
-        let ពុទ្ធសករាជថ្មី = if ពីដើមមិគសិរ < លំដាប់ថ្ងៃ១រោចខែពិសាខ as u16 { ពុទ្ធសករាជ + 1} else {ពុទ្ធសករាជ};
+        let ពុទ្ធសករាជថ្មី = if ពីដើមមិគសិរ
+            < លំដាប់ថ្ងៃ១រោចខែពិសាខ as u16
+        {
+            ពុទ្ធសករាជ + 1
+        } else {
+            ពុទ្ធសករាជ
+        };
 
         loop {
             let ចុល្លសករាជថ្មី = គណនាឆ្នាំចុល្លសករាជថ្មីពីពុទ្ធសករាជថ្មី(marked_ពស_ថ្មី);
             if ពុទ្ធសករាជថ្មី > marked_ពស_ថ្មី {
                 let diff = 1 + គណនាចំនួនថ្ងៃពីដើមខែមិគសិរឆ្នាំចាស់ដល់ចុងកក្ដិកឆ្នាំថ្មី(ចុល្លសករាជថ្មី) - marked_date.រាប់ថ្ងៃពីដើមខែមិគសិរ(ចុល្លសករាជថ្មី) as i128;
                 marked_date = LunarDate {
-                    day: LunarDay { order: 1, moon_status: MoonStatus::កើត },
+                    day: LunarDay {
+                        order: 1,
+                        moon_status: MoonStatus::កើត,
+                    },
                     month: LunarMonth::មិគសិរ,
                 };
                 different += diff;
@@ -1016,7 +1106,10 @@ impl KhmerDate {
             } else if ពុទ្ធសករាជថ្មី < marked_ពស_ថ្មី {
                 let diff = marked_date.រាប់ថ្ងៃពីដើមខែមិគសិរ(ចុល្លសករាជថ្មី) as i128 - 1 + គណនាចំនួនថ្ងៃពីដើមខែមិគសិរឆ្នាំចាស់ដល់ចុងកក្ដិកឆ្នាំថ្មី(ចុល្លសករាជថ្មី - 1) ;
                 marked_date = LunarDate {
-                    day: LunarDay { order: 1, moon_status: MoonStatus::កើត },
+                    day: LunarDay {
+                        order: 1,
+                        moon_status: MoonStatus::កើត,
+                    },
                     month: LunarMonth::មិគសិរ,
                 };
                 different -= diff;
@@ -1027,7 +1120,41 @@ impl KhmerDate {
                 break;
             }
         }
+        return epoch.add(different, time);
+    }
+}
 
-        epoch.add(different, time)
+#[cfg(test)]
+mod tests {
+    use chrono::Weekday;
+
+    use crate::{
+        គណនាឆ្នាំចុល្លសករាជថ្មីក្នុងគ្រិស្តសករាជ, សុរិយាត្រឡើងស័ក
+    };
+
+    #[test]
+    fn new_year_weekday() {
+        let mut i = 0;
+        let expect = vec![
+            Weekday::Sun,
+            Weekday::Mon,
+            Weekday::Tue,
+            Weekday::Thu,
+            Weekday::Fri,
+            Weekday::Sat,
+            Weekday::Sun,
+            Weekday::Tue,
+            Weekday::Wed,
+            Weekday::Thu,
+            Weekday::Fri,
+            Weekday::Sun,
+            Weekday::Mon,
+            Weekday::Tue,
+        ];
+        for year in 1878..=1891 {
+            let _សុរិយាត្រឡើងស័ក = សុរិយាត្រឡើងស័ក::from_jolasakrach(គណនាឆ្នាំចុល្លសករាជថ្មីក្នុងគ្រិស្តសករាជ(year));
+            assert_eq!(_សុរិយាត្រឡើងស័ក.គណនាឈ្មោះថ្ងៃឡើងស័ក(), *expect.get(i).unwrap());
+            i += 1;
+        }
     }
 }
