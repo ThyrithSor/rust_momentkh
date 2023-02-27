@@ -81,16 +81,16 @@ macro_rules! modulo {
 pub fn គណនាចំនួនថ្ងៃពីដើមខែមិគសិរឆ្នាំចាស់ដល់ចុងកក្ដិកឆ្នាំថ្មី(
     ចុល្លសករាជថ្មី: i128,
 ) -> i128 {
-    let _សុរិយាត្រឡើងស័ក = សុរិយាត្រឡើងស័ក::from_jolasakrach(ចុល្លសករាជថ្មី);
+    let _សុរិយាឡើងស័ក = សុរិយាឡើងស័ក::from_jolasakrach(ចុល្លសករាជថ្មី);
     let មិគសិរ_បុស្ស_មាឃ_ផល្គុន_ចេត្រ_ពិសាខ_ស្រាពណ៍_ភទ្របទ_អស្សុជ_កក្ដិក =
         29 + 30 + 29 + 30 + 29 + 30 + 29 + 30 + 29 + 30;
     let mut ចំនួនថ្ងៃ = មិគសិរ_បុស្ស_មាឃ_ផល្គុន_ចេត្រ_ពិសាខ_ស្រាពណ៍_ភទ្របទ_អស្សុជ_កក្ដិក;
-    if _សុរិយាត្រឡើងស័ក.ជាឆ្នាំអធិកមាស() {
+    if _សុរិយាឡើងស័ក.ជាឆ្នាំអធិកមាស() {
         ចំនួនថ្ងៃ = ចំនួនថ្ងៃ + 60;
     } else {
         ចំនួនថ្ងៃ = ចំនួនថ្ងៃ + 30;
     }
-    if _សុរិយាត្រឡើងស័ក.ជាឆ្នាំចន្ទ្រាធិមាស()
+    if _សុរិយាឡើងស័ក.ជាឆ្នាំចន្ទ្រាធិមាស()
     {
         ចំនួនថ្ងៃ = ចំនួនថ្ងៃ + 30;
     } else {
@@ -344,7 +344,7 @@ impl LunarMonth {
             Self::បឋមាសាឍ => Self::ជេស្ឋ,
             Self::ទុតិយាសាឍ => Self::បឋមាសាឍ,
             Self::ស្រាពណ៍ => {
-                if សុរិយាត្រឡើងស័ក::from_jolasakrach(ចុល្លសករាជថ្មី).ជាឆ្នាំអធិកមាស()
+                if សុរិយាឡើងស័ក::from_jolasakrach(ចុល្លសករាជថ្មី).ជាឆ្នាំអធិកមាស()
                 {
                     Self::ទុតិយាសាឍ
                 } else {
@@ -365,7 +365,7 @@ impl LunarMonth {
             Self::ចេត្រ => Self::ពិសាខ,
             Self::ពិសាខ => Self::ជេស្ឋ,
             Self::ជេស្ឋ => {
-                if សុរិយាត្រឡើងស័ក::from_jolasakrach(ចុល្លសករាជថ្មី).ជាឆ្នាំអធិកមាស()
+                if សុរិយាឡើងស័ក::from_jolasakrach(ចុល្លសករាជថ្មី).ជាឆ្នាំអធិកមាស()
                 {
                     Self::បឋមាសាឍ
                 } else {
@@ -382,7 +382,7 @@ impl LunarMonth {
         }
     }
     pub fn get_total_day(&self, ចុល្លសករាជ: i128) -> u8 {
-        let this_year = សុរិយាត្រឡើងស័ក::from_jolasakrach(ចុល្លសករាជ);
+        let this_year = សុរិយាឡើងស័ក::from_jolasakrach(ចុល្លសករាជ);
         match self {
             LunarMonth::ជេស្ឋ => {
                 if this_year.ជាឆ្នាំចន្ទ្រាធិមាស() {
@@ -593,15 +593,15 @@ impl មធ្យមព្រះអាទិត្យ {
 }
 
 #[derive(Debug)]
-pub struct សុរិយាត្រឡើងស័ក {
+pub struct សុរិយាឡើងស័ក {
     ចុល្លសករាជ: i128,
     ហារគុណ: i128,
     kromathopol: u32,
-    អវមាន: u32,
-    bodethey: u8,
+    អវមាន: u32,  
+    bodethey: u8, 
 }
 
-impl សុរិយាត្រឡើងស័ក {
+impl សុរិយាឡើងស័ក {
     pub fn from_jolasakrach(ចុល្លសករាជថ្មី: i128) -> Self {
         let _r: i128 = ចុល្លសករាជថ្មី * 292_207i128 + 373i128;
         let h1 = _r / 800;
@@ -612,7 +612,7 @@ impl សុរិយាត្រឡើងស័ក {
         let អវមាន = modulo!(_a, 692);
         let បូតិថី = modulo!((ហារគុណ + q1), 30);
 
-        សុរិយាត្រឡើងស័ក {
+        សុរិយាឡើងស័ក {
             ចុល្លសករាជ: ចុល្លសករាជថ្មី,
             ហារគុណ: ហារគុណ,
             kromathopol: (800 - r1) as u32,
@@ -628,7 +628,7 @@ impl សុរិយាត្រឡើងស័ក {
 
     pub fn គណនាចំនួនថ្ងៃវ័នបត(&self) -> Range<u16> {
         let previous_year =
-            សុរិយាត្រឡើងស័ក::from_jolasakrach(self.ចុល្លសករាជ - 1);
+            សុរិយាឡើងស័ក::from_jolasakrach(self.ចុល្លសករាជ - 1);
         let សុទិនដែលត្រូវរាប់: RangeInclusive<u16>;
         if previous_year.has366() {
             សុទិនដែលត្រូវរាប់ = 363..=366;
@@ -660,7 +660,7 @@ impl សុរិយាត្រឡើងស័ក {
         }
 
         let previous_year =
-            សុរិយាត្រឡើងស័ក::from_jolasakrach(self.ចុល្លសករាជ - 1);
+            សុរិយាឡើងស័ក::from_jolasakrach(self.ចុល្លសករាជ - 1);
         if !previous_year.ជាឆ្នាំអធិកមាស() {
             return LunarDate {
                 day: if self.bodethey > 5 {
@@ -751,7 +751,7 @@ impl សុរិយាត្រឡើងស័ក {
         សុទិន: u16,
     ) -> មធ្យមព្រះអាទិត្យ {
         let previous_year =
-            សុរិយាត្រឡើងស័ក::from_jolasakrach(self.ចុល្លសករាជ - 1);
+            សុរិយាឡើងស័ក::from_jolasakrach(self.ចុល្លសករាជ - 1);
         let _total = (សុទិន as u32 * 800) + previous_year.kromathopol;
         let រាសី = _total / 24350;
         let _r3 = modulo!(_total, 24350);
@@ -798,7 +798,7 @@ impl សុរិយាត្រឡើងស័ក {
             return true;
         } else if !self.has366() {
             if self.អវមាន == 137
-                && សុរិយាត្រឡើងស័ក::from_jolasakrach(
+                && សុរិយាឡើងស័ក::from_jolasakrach(
                     self.ចុល្លសករាជ + 1,
                 )
                 .អវមាន
@@ -810,7 +810,7 @@ impl សុរិយាត្រឡើងស័ក {
             }
         }
         let previous_year =
-            សុរិយាត្រឡើងស័ក::from_jolasakrach(self.ចុល្លសករាជ + 1);
+            សុរិយាឡើងស័ក::from_jolasakrach(self.ចុល្លសករាជ + 1);
         if !previous_year.has366() && previous_year.អវមាន == 137 && self.អវមាន == 0
         {
             return true;
@@ -821,13 +821,13 @@ impl សុរិយាត្រឡើងស័ក {
     // គណនារកឆ្នាំអធិកមាស ឬ ឆ្នាំមាន១៣ខែចន្ទគតិ
     pub fn ជាឆ្នាំអធិកមាស(&self) -> bool {
         if self.bodethey == 25
-            && សុរិយាត្រឡើងស័ក::from_jolasakrach(self.ចុល្លសករាជ + 1).bodethey == 5
+            && សុរិយាឡើងស័ក::from_jolasakrach(self.ចុល្លសករាជ + 1).bodethey == 5
         {
             return false;
         } else if self.bodethey > 24 || self.bodethey < 6 {
             return true;
         } else if self.bodethey == 24
-            && សុរិយាត្រឡើងស័ក::from_jolasakrach(self.ចុល្លសករាជ + 1).bodethey == 6
+            && សុរិយាឡើងស័ក::from_jolasakrach(self.ចុល្លសករាជ + 1).bodethey == 6
         {
             return true;
         }
@@ -957,12 +957,12 @@ impl KhmerDate {
             }
         }
 
-        let _សុរិយាត្រឡើងស័ក =
-            សុរិយាត្រឡើងស័ក::from_jolasakrach(ចុល្លសករាជថ្មី);
+        let _សុរិយាឡើងស័ក =
+            សុរិយាឡើងស័ក::from_jolasakrach(ចុល្លសករាជថ្មី);
         let រាប់ពីដើមមិគសិរ = current_date
             .រាប់ថ្ងៃពីដើមខែមិគសិរ(ចុល្លសករាជថ្មី);
 
-        let ថ្ងៃឡើងស័ក = _សុរិយាត្រឡើងស័ក
+        let ថ្ងៃឡើងស័ក = _សុរិយាឡើងស័ក
             .គណនាថ្ងៃឡើងស័ក()
             .រាប់ថ្ងៃពីដើមខែមិគសិរ(ចុល្លសករាជថ្មី);
 
@@ -990,7 +990,7 @@ impl KhmerDate {
         _ស័ក = modulo!(_ស័ក, 10);
         _ស័ក = if _ស័ក == 0 { 10 } else { _ស័ក };
 
-        let ថ្ងៃចូលឆ្នាំ = _សុរិយាត្រឡើងស័ក
+        let ថ្ងៃចូលឆ្នាំ = _សុរិយាឡើងស័ក
             .គណនាថ្ងៃចូលឆ្នាំ()
             .រាប់ថ្ងៃពីដើមខែមិគសិរ(ចុល្លសករាជថ្មី);
         let mut _សត្វ = self.សត្វ.to_num() as i128
@@ -1002,7 +1002,7 @@ impl KhmerDate {
                 ចុល្លសករាជថ្មី - self.ចុល្លសករាជ
             } else {
                 if let Some(time) = self.time {
-                    let នាទីចូលឆ្នាំ = _សុរិយាត្រឡើងស័ក.គណនាម៉ោងទទួលទេវតា().គណនានាទីសរុប();
+                    let នាទីចូលឆ្នាំ = _សុរិយាឡើងស័ក.គណនាម៉ោងទទួលទេវតា().គណនានាទីសរុប();
                     if time.គណនានាទីសរុប() < នាទីចូលឆ្នាំ
                     {
                         ចុល្លសករាជថ្មី - 1 - self.ចុល្លសករាជ
@@ -1043,9 +1043,9 @@ impl KhmerDate {
     pub fn គណនាវេលាចូលឆ្នាំបន្ទាប់(&self) -> Self {
         let mut ចុល្លសករាជ = គណនាឆ្នាំចុល្លសករាជថ្មីក្នុងគ្រិស្តសករាជ(self.gregorian_date.year() as i128);
         loop {
-            let _សុរិយាត្រឡើងស័ក =
-                សុរិយាត្រឡើងស័ក::from_jolasakrach(ចុល្លសករាជ);
-            let វេលាចូលឆ្នាំ = Self::from_khmer_date_time(គណនាឆ្នាំពុទ្ធសករាជថ្មីពីចុល្លសករាជថ្មី(ចុល្លសករាជ) - 1, _សុរិយាត្រឡើងស័ក.គណនាថ្ងៃចូលឆ្នាំ(), Some(_សុរិយាត្រឡើងស័ក.គណនាម៉ោងទទួលទេវតា()));
+            let _សុរិយាឡើងស័ក =
+                សុរិយាឡើងស័ក::from_jolasakrach(ចុល្លសករាជ);
+            let វេលាចូលឆ្នាំ = Self::from_khmer_date_time(គណនាឆ្នាំពុទ្ធសករាជថ្មីពីចុល្លសករាជថ្មី(ចុល្លសករាជ) - 1, _សុរិយាឡើងស័ក.គណនាថ្ងៃចូលឆ្នាំ(), Some(_សុរិយាឡើងស័ក.គណនាម៉ោងទទួលទេវតា()));
             let mut compared_minutes = វេលាចូលឆ្នាំ
                 .gregorian_date
                 .signed_duration_since(self.gregorian_date)

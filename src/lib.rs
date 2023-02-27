@@ -7,7 +7,7 @@ mod tests {
     use chrono::Weekday;
 
     use crate::momentkh::{
-        parse_iso_date, KhmerDate, គណនាឆ្នាំចុល្លសករាជថ្មីក្នុងគ្រិស្តសករាជ, សុរិយាត្រឡើងស័ក, LunarDate, MoonStatus, LunarDay, ស័ក, សត្វ
+        parse_iso_date, KhmerDate, គណនាឆ្នាំចុល្លសករាជថ្មីក្នុងគ្រិស្តសករាជ, សុរិយាឡើងស័ក, LunarDate, MoonStatus, LunarDay, ស័ក, សត្វ
     };
 
     #[test]
@@ -30,7 +30,7 @@ mod tests {
             Weekday::Tue,
         ];
         for year in 1878..=1891 {
-            let _សុរិយាត្រឡើងស័ក = សុរិយាត្រឡើងស័ក::from_jolasakrach(គណនាឆ្នាំចុល្លសករាជថ្មីក្នុងគ្រិស្តសករាជ(year));
+            let _សុរិយាត្រឡើងស័ក = សុរិយាឡើងស័ក::from_jolasakrach(គណនាឆ្នាំចុល្លសករាជថ្មីក្នុងគ្រិស្តសករាជ(year));
             assert_eq!(_សុរិយាត្រឡើងស័ក.គណនាឈ្មោះថ្ងៃឡើងស័ក(), *expect.get(i).unwrap());
             i += 1;
         }
