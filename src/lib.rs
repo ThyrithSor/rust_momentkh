@@ -7,7 +7,7 @@ mod tests {
     use chrono::Weekday;
 
     use crate::momentkh::{
-        parse_iso_date, KhmerDate, គណនាឆ្នាំចុល្លសករាជថ្មីក្នុងគ្រិស្តសករាជ, សុរិយាត្រឡើងស័ក, LunarDate, MoonStatus, LunarDay, ស័ក, សត្វ
+        parse_iso_date, KhmerDate, គណនាឆ្នាំចុល្លសករាជថ្មីក្នុងគ្រិស្តសករាជ, សុរិយាត្រឡើងស័ក, LunarDate, MoonStatus, LunarDay, ស័ក, សត្វ, self
     };
 
     #[test]
@@ -57,5 +57,12 @@ mod tests {
                 time: None
             }
         );
+    }
+
+    #[test]
+    fn khmer_number() {
+        assert_eq!(momentkh::parse_khmer_number("១៥"), 15);
+        assert_eq!(momentkh::parse_khmer_number("០១"), 1);
+        assert_eq!(momentkh::parse_khmer_number("-៥៦១"), -561);
     }
 }
