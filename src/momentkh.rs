@@ -78,6 +78,38 @@ macro_rules! modulo {
     };
 }
 
+pub fn parse_khmer_number(num_str: &str) -> i32 {
+    let chars = num_str.chars().rev();
+    let mut result: i32 = 0;
+    let mut count_digit = 0;
+    for character in chars {
+        result += match character {
+            '1' | '១' => 10i32.pow(count_digit) * 1,
+            '2' | '២' => 10i32.pow(count_digit) * 2,
+            '3' | '៣' => 10i32.pow(count_digit) * 3,
+            '4' | '៤' => 10i32.pow(count_digit) * 4,
+            '5' | '៥' => 10i32.pow(count_digit) * 5,
+            '6' | '៦' => 10i32.pow(count_digit) * 6,
+            '7' | '៧' => 10i32.pow(count_digit) * 7,
+            '8' | '៨' => 10i32.pow(count_digit) * 8,
+            '9' | '៩' => 10i32.pow(count_digit) * 9,
+            '0' | '០' => 10i32.pow(count_digit) * 0,
+            '-' => {
+                // println!("Hello {} , {}", count_digit,num_str.len());
+                // if count_digit + 1 == num_str.len() as u32 {
+                    result *= -1;
+                    0
+                // } else {
+                //     panic!("Invalid input -");
+                // }
+            },
+            _ => panic!("Invalid input number"),
+        };
+        count_digit += 1;
+    }
+    result
+}
+
 pub fn គណនាចំនួនថ្ងៃពីដើមខែមិគសិរឆ្នាំចាស់ដល់ចុងកក្ដិកឆ្នាំថ្មី(
     ចុល្លសករាជថ្មី: i128,
 ) -> i128 {
@@ -851,13 +883,7 @@ impl KhmerDate {
     pub fn get_epoch() -> Self {
         KhmerDate {
             gregorian_date: NaiveDate::from_ymd_opt(1900, 1, 1).unwrap(),
-            lunar_date: LunarDate {
-                day: LunarDay {
-                    order: 1,
-                    moon_status: MoonStatus::កើត,
-                },
-                month: LunarMonth::បុស្ស,
-            },
+            lunar_date: ត្រូវនឹងថ្ងៃ!(1 កើត ខែ បុស្ស),
             ពុទ្ធសករាជ: 2443,
             សត្វ: សត្វ::កុរ,
             ស័ក: ស័ក::ឯកស័ក,
@@ -911,10 +937,7 @@ impl KhmerDate {
                 } else {
                     let max_day_in_previous_year = គណនាចំនួនថ្ងៃពីដើមខែមិគសិរឆ្នាំចាស់ដល់ចុងកក្ដិកឆ្នាំថ្មី(ចុល្លសករាជថ្មី - 1);
 
-                    current_date = LunarDate {
-                        month: LunarMonth::មិគសិរ,
-                        day: LunarDay::from_day_in_month(1),
-                    };
+                    current_date = ត្រូវនឹងថ្ងៃ!(1 កើត ខែ មិគសិរ);
                     addition = addition + (day_in_year as i128) - 1 + max_day_in_previous_year;
                     ចុល្លសករាជថ្មី = ចុល្លសករាជថ្មី - 1;
                 }
@@ -941,13 +964,7 @@ impl KhmerDate {
                             addition - ចំនួនថ្ងៃទៅដល់ខែថ្មី;
                     }
                 } else {
-                    current_date = LunarDate {
-                        month: LunarMonth::មិគសិរ,
-                        day: LunarDay {
-                            order: 1,
-                            moon_status: MoonStatus::កើត,
-                        },
-                    };
+                    current_date = ត្រូវនឹងថ្ងៃ!(1 កើត ខែ មិគសិរ);
                     addition = addition
                         - ចំនួនថ្ងៃទៅដល់មិគសិរថ្មី;
                     ចុល្លសករាជថ្មី = ចុល្លសករាជថ្មី + 1;
@@ -1090,24 +1107,12 @@ impl KhmerDate {
             let ចុល្លសករាជថ្មី = គណនាឆ្នាំចុល្លសករាជថ្មីពីពុទ្ធសករាជថ្មី(marked_ពស_ថ្មី);
             if ពុទ្ធសករាជថ្មី > marked_ពស_ថ្មី {
                 let diff = 1 + គណនាចំនួនថ្ងៃពីដើមខែមិគសិរឆ្នាំចាស់ដល់ចុងកក្ដិកឆ្នាំថ្មី(ចុល្លសករាជថ្មី) - marked_date.រាប់ថ្ងៃពីដើមខែមិគសិរ(ចុល្លសករាជថ្មី) as i128;
-                marked_date = LunarDate {
-                    day: LunarDay {
-                        order: 1,
-                        moon_status: MoonStatus::កើត,
-                    },
-                    month: LunarMonth::មិគសិរ,
-                };
+                marked_date = ត្រូវនឹងថ្ងៃ!(1 កើត ខែ មិគសិរ);
                 different += diff;
                 marked_ពស_ថ្មី += 1;
             } else if ពុទ្ធសករាជថ្មី < marked_ពស_ថ្មី {
                 let diff = marked_date.រាប់ថ្ងៃពីដើមខែមិគសិរ(ចុល្លសករាជថ្មី) as i128 - 1 + គណនាចំនួនថ្ងៃពីដើមខែមិគសិរឆ្នាំចាស់ដល់ចុងកក្ដិកឆ្នាំថ្មី(ចុល្លសករាជថ្មី - 1) ;
-                marked_date = LunarDate {
-                    day: LunarDay {
-                        order: 1,
-                        moon_status: MoonStatus::កើត,
-                    },
-                    month: LunarMonth::មិគសិរ,
-                };
+                marked_date = ត្រូវនឹងថ្ងៃ!(1 កើត ខែ មិគសិរ);
                 different -= diff;
                 marked_ពស_ថ្មី -= 1;
             } else {
