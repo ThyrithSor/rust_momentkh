@@ -4,10 +4,10 @@ mod momentkh;
 
 #[cfg(test)]
 mod tests {
-    use chrono::Weekday;
+    use chrono::{Weekday, Datelike, NaiveTime};
 
     use crate::momentkh::{
-        parse_iso_date, KhmerDate, គណនាឆ្នាំចុល្លសករាជថ្មីក្នុងគ្រិស្តសករាជ, សុរិយាឡើងស័ក, LunarDate, MoonStatus, LunarDay, ស័ក, សត្វ, parse_khmer_number
+        parse_iso_date, KhmerDate, គណនាឆ្នាំចុល្លសករាជថ្មីក្នុងគ្រិស្តសករាជ, គណនាឆ្នាំពុទ្ធសករាជថ្មីពីចុល្លសករាជថ្មី, សុរិយាឡើងស័ក, LunarDate, MoonStatus, LunarDay, ស័ក, សត្វ, parse_khmer_number
     };
 
     #[test]
@@ -30,8 +30,8 @@ mod tests {
             Weekday::Tue,
         ];
         for year in 1878..=1891 {
-            let _សុរិយាត្រឡើងស័ក = សុរិយាឡើងស័ក::from_jolasakrach(គណនាឆ្នាំចុល្លសករាជថ្មីក្នុងគ្រិស្តសករាជ(year));
-            assert_eq!(_សុរិយាត្រឡើងស័ក.គណនាឈ្មោះថ្ងៃឡើងស័ក(), *expect.get(i).unwrap());
+            let _សុរិយាឡើងស័ក = សុរិយាឡើងស័ក::from_jolasakrach(គណនាឆ្នាំចុល្លសករាជថ្មីក្នុងគ្រិស្តសករាជ(year));
+            assert_eq!(_សុរិយាឡើងស័ក.គណនាឈ្មោះថ្ងៃឡើងស័ក(), *expect.get(i).unwrap());
             i += 1;
         }
     }
@@ -64,5 +64,20 @@ mod tests {
         assert_eq!(parse_khmer_number("១៥"), 15);
         assert_eq!(parse_khmer_number("០១"), 1);
         assert_eq!(parse_khmer_number("-៥៦១"), -561);
+    }
+
+    #[test]
+    fn new_year_day_of_week() {
+        for year in 2023..=20000 {
+            let ចុល្លសករាជថ្មី = គណនាឆ្នាំចុល្លសករាជថ្មីក្នុងគ្រិស្តសករាជ(year);
+            let ពុទ្ធសករាជថ្មី = គណនាឆ្នាំពុទ្ធសករាជថ្មីពីចុល្លសករាជថ្មី(ចុល្លសករាជថ្មី);
+            let _សុរិយាឡើងស័ក = សុរិយាឡើងស័ក::from_jolasakrach(ចុល្លសករាជថ្មី);
+            let ឈ្មោះថ្ងៃឡើងស័ក = _សុរិយាឡើងស័ក.គណនាឈ្មោះថ្ងៃឡើងស័ក();
+            let ថ្ងៃឡើងស័ក = _សុរិយាឡើងស័ក.គណនាថ្ងៃឡើងស័ក();
+            let ថ្ងៃខ្មែរឡើងស័ក = KhmerDate::from_khmer_date_time(ពុទ្ធសករាជថ្មី - 1, ថ្ងៃឡើងស័ក, None);
+            println!("Year: {:?}", year);
+            println!("Year: {:?}", ថ្ងៃខ្មែរឡើងស័ក);
+            assert_eq!(ឈ្មោះថ្ងៃឡើងស័ក, ថ្ងៃខ្មែរឡើងស័ក.gregorian_date.and_time(NaiveTime::from_num_seconds_from_midnight_opt(0, 0).unwrap()).weekday());
+        }
     }
 }
