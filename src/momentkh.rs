@@ -97,12 +97,12 @@ pub fn parse_khmer_number(num_str: &str) -> i32 {
             '-' => {
                 // println!("Hello {} , {}", count_digit,num_str.len());
                 // if count_digit + 1 == num_str.len() as u32 {
-                    result *= -1;
-                    0
+                result *= -1;
+                0
                 // } else {
                 //     panic!("Invalid input -");
                 // }
-            },
+            }
             _ => panic!("Invalid input number"),
         };
         count_digit += 1;
@@ -122,7 +122,7 @@ pub fn គណនាចំនួនថ្ងៃពីដើមខែមិគស�
     } else {
         ចំនួនថ្ងៃ = ចំនួនថ្ងៃ + 30;
     }
-    if _សុរិយាឡើងស័ក.ជាឆ្នាំចន្ទ្រាធិមាស()
+    if _សុរិយាឡើងស័ក.ខែជេស្ឋមាន៣០ថ្ងៃ()
     {
         ចំនួនថ្ងៃ = ចំនួនថ្ងៃ + 30;
     } else {
@@ -417,7 +417,7 @@ impl LunarMonth {
         let this_year = សុរិយាឡើងស័ក::from_jolasakrach(ចុល្លសករាជ);
         match self {
             LunarMonth::ជេស្ឋ => {
-                if this_year.ជាឆ្នាំចន្ទ្រាធិមាស() {
+                if this_year.ខែជេស្ឋមាន៣០ថ្ងៃ() {
                     return 30;
                 } else {
                     return 29;
@@ -629,8 +629,8 @@ pub struct សុរិយាឡើងស័ក {
     ចុល្លសករាជ: i128,
     ហារគុណ: i128,
     kromathopol: u32,
-    អវមាន: u32,  
-    bodethey: u8, 
+    អវមាន: u32,
+    bodethey: u8,
 }
 
 impl សុរិយាឡើងស័ក {
@@ -824,17 +824,13 @@ impl សុរិយាឡើងស័ក {
         }
     }
 
-    // គណារកឆ្នាំចន្ទ្រាធិមាស ឬ​ឆ្នាំដែលខែជេស្ឋមាន៣០ថ្ងៃ
+    // គណារកឆ្នាំចន្ទ្រាធិមាស ឬ​ឆ្នាំដែលខែជេស្ឋមាន៣០ថ្ងៃ (បើអធិកមាសដែរ ត្រូវលើកថ្ងៃ៣០ ទៅឆ្នាំបន្ទាប់)
     pub fn ជាឆ្នាំចន្ទ្រាធិមាស(&self) -> bool {
         if self.has366() && self.អវមាន < 127 {
             return true;
         } else if !self.has366() {
             if self.អវមាន == 137
-                && សុរិយាឡើងស័ក::from_jolasakrach(
-                    self.ចុល្លសករាជ + 1,
-                )
-                .អវមាន
-                    == 0
+                && សុរិយាឡើងស័ក::from_jolasakrach(self.ចុល្លសករាជ + 1).អវមាន == 0
             {
                 return false;
             } else if self.អវមាន < 138 {
@@ -848,6 +844,19 @@ impl សុរិយាឡើងស័ក {
             return true;
         }
         false
+    }
+
+    pub fn ខែជេស្ឋមាន៣០ថ្ងៃ(&self) -> bool {
+        let ចន្ទ្រាធិមាស = self.ជាឆ្នាំចន្ទ្រាធិមាស();
+        let mut really = ចន្ទ្រាធិមាស;
+        if self.ជាឆ្នាំអធិកមាស() && ចន្ទ្រាធិមាស {
+            really = false;
+        }
+        let ឆ្នាំមុន = សុរិយាឡើងស័ក::from_jolasakrach(self.ចុល្លសករាជ - 1);
+        if !ចន្ទ្រាធិមាស && ឆ្នាំមុន.ជាឆ្នាំអធិកមាស() && ឆ្នាំមុន.ជាឆ្នាំចន្ទ្រាធិមាស() {
+            really = true;
+        }
+        really
     }
 
     // គណនារកឆ្នាំអធិកមាស ឬ ឆ្នាំមាន១៣ខែចន្ទគតិ
@@ -906,7 +915,6 @@ impl KhmerDate {
     }
 
     pub fn add(&self, days: i128, time: Option<Time>) -> Self {
-        println!("days diff from epoch : {}", days);
         let mut addition = days;
         let mut current_date = self.lunar_date.clone();
         let mut ចុល្លសករាជថ្មី = គណនាឆ្នាំចុល្លសករាជថ្មីក្នុងគ្រិស្តសករាជ( self.gregorian_date.year() as i128);
@@ -975,8 +983,7 @@ impl KhmerDate {
             }
         }
 
-        let _សុរិយាឡើងស័ក =
-            សុរិយាឡើងស័ក::from_jolasakrach(ចុល្លសករាជថ្មី);
+        let _សុរិយាឡើងស័ក = សុរិយាឡើងស័ក::from_jolasakrach(ចុល្លសករាជថ្មី);
         let រាប់ពីដើមមិគសិរ = current_date
             .រាប់ថ្ងៃពីដើមខែមិគសិរ(ចុល្លសករាជថ្មី);
 
@@ -1061,8 +1068,7 @@ impl KhmerDate {
     pub fn គណនាវេលាចូលឆ្នាំបន្ទាប់(&self) -> Self {
         let mut ចុល្លសករាជ = គណនាឆ្នាំចុល្លសករាជថ្មីក្នុងគ្រិស្តសករាជ(self.gregorian_date.year() as i128);
         loop {
-            let _សុរិយាឡើងស័ក =
-                សុរិយាឡើងស័ក::from_jolasakrach(ចុល្លសករាជ);
+            let _សុរិយាឡើងស័ក = សុរិយាឡើងស័ក::from_jolasakrach(ចុល្លសករាជ);
             let វេលាចូលឆ្នាំ = Self::from_khmer_date_time(គណនាឆ្នាំពុទ្ធសករាជថ្មីពីចុល្លសករាជថ្មី(ចុល្លសករាជ) - 1, _សុរិយាឡើងស័ក.គណនាថ្ងៃចូលឆ្នាំ(), Some(_សុរិយាឡើងស័ក.គណនាម៉ោងទទួលទេវតា()));
             let mut compared_minutes = វេលាចូលឆ្នាំ
                 .gregorian_date
