@@ -29,6 +29,7 @@ macro_rules! វេលា {
     };
 }
 
+// ឆ្នាំដែលលទ្ធផលបោះពុម្ពផ្សាយ ខុសពីការគណនា
 const EXCLUSION: phf::Map<&'static str, (LunarDate, Time, LunarDate)> = phf_map! {
     "1879" => (ត្រូវនឹងថ្ងៃ!(6 រោច ខែ ចេត្រ), វេលា!(11:36), ត្រូវនឹងថ្ងៃ!(8 រោច ខែ ចេត្រ)),
     "1897" => (ត្រូវនឹងថ្ងៃ!(10 កើត ខែ ចេត្រ), វេលា!(2:00), ត្រូវនឹងថ្ងៃ!(12 កើត ខែ ចេត្រ)),
@@ -39,6 +40,7 @@ const EXCLUSION: phf::Map<&'static str, (LunarDate, Time, LunarDate)> = phf_map!
     "2015" => (ត្រូវនឹងថ្ងៃ!(11 រោច ខែ ចេត្រ), វេលា!(14:02), ត្រូវនឹងថ្ងៃ!(13 រោច ខែ ចេត្រ)),
 };
 
+// ចំនួនថ្ងៃពីរាប់ពី១កើត ខែមិគសិរ ដល់ ១រោច ខែពិសាខ
 const លំដាប់ថ្ងៃ១រោចខែពិសាខ: u8 = 29 + 30 + 29 + 30 + 29 + 15;
 
 const តារាងឆាយាអាទិត្យ: [ឆាយាអាទិត្យ; 7] = [
@@ -78,6 +80,7 @@ macro_rules! modulo {
     };
 }
 
+// បម្លែង String លេខខ្មែរ ទៅជា i32
 pub fn parse_khmer_number(num_str: &str) -> i32 {
     let chars = num_str.chars().rev();
     let mut result: i32 = 0;
@@ -95,13 +98,12 @@ pub fn parse_khmer_number(num_str: &str) -> i32 {
             '9' | '៩' => 10i32.pow(count_digit) * 9,
             '0' | '០' => 10i32.pow(count_digit) * 0,
             '-' => {
-                // println!("Hello {} , {}", count_digit,num_str.len());
-                // if count_digit + 1 == num_str.len() as u32 {
-                result *= -1;
-                0
-                // } else {
-                //     panic!("Invalid input -");
-                // }
+                if count_digit + 1 == num_str.chars().count() as u32 {
+                    result *= -1;
+                    0
+                } else {
+                    panic!("Invalid input -");
+                }
             }
             _ => panic!("Invalid input number"),
         };
@@ -110,6 +112,7 @@ pub fn parse_khmer_number(num_str: &str) -> i32 {
     result
 }
 
+// ដោយសារចុល្លសករាជថ្មីផ្លាស់ប្ដូរកណ្ដាលឆ្នាំ ដូច្នេះវាពិបាកកំណត់ថាមិគសិរ និង កក្ដិកស្ថិតក្នុងឆ្នាំតែមួយ
 pub fn គណនាចំនួនថ្ងៃពីដើមខែមិគសិរឆ្នាំចាស់ដល់ចុងកក្ដិកឆ្នាំថ្មី(
     ចុល្លសករាជថ្មី: i128,
 ) -> i128 {
@@ -117,16 +120,18 @@ pub fn គណនាចំនួនថ្ងៃពីដើមខែមិគស�
     let មិគសិរ_បុស្ស_មាឃ_ផល្គុន_ចេត្រ_ពិសាខ_ស្រាពណ៍_ភទ្របទ_អស្សុជ_កក្ដិក =
         29 + 30 + 29 + 30 + 29 + 30 + 29 + 30 + 29 + 30;
     let mut ចំនួនថ្ងៃ = មិគសិរ_បុស្ស_មាឃ_ផល្គុន_ចេត្រ_ពិសាខ_ស្រាពណ៍_ភទ្របទ_អស្សុជ_កក្ដិក;
+
+    // ឆ្នាំដែលមាន១៣ខែ
     if _សុរិយាឡើងស័ក.ជាឆ្នាំអធិកមាស() {
-        ចំនួនថ្ងៃ = ចំនួនថ្ងៃ + 60;
+        ចំនួនថ្ងៃ += 60;
     } else {
-        ចំនួនថ្ងៃ = ចំនួនថ្ងៃ + 30;
+        ចំនួនថ្ងៃ += 30;
     }
     if _សុរិយាឡើងស័ក.ខែជេស្ឋមាន៣០ថ្ងៃ()
     {
-        ចំនួនថ្ងៃ = ចំនួនថ្ងៃ + 30;
+        ចំនួនថ្ងៃ += 30;
     } else {
-        ចំនួនថ្ងៃ = ចំនួនថ្ងៃ + 29;
+        ចំនួនថ្ងៃ += 29;
     }
     ចំនួនថ្ងៃ
 }
@@ -139,6 +144,7 @@ fn គណនាឆ្នាំបុរាណសករាជថ្មីក្�
     return gregorian_year.into() - 633i128;
 }
 
+// មហាសករាជ និង ចុល្លសករាជ ផ្លាស់ប្ដូរក្នុងថ្ងៃតែមួយ គឺថ្ងៃឡើងស័ក ដូច្នេះ វាអាចបម្លែងទៅមកបាន
 pub fn គណនាឆ្នាំមហាសករាជពីចុល្លសករាជ<
     T: Into<i128>,
 >(
@@ -147,6 +153,7 @@ pub fn គណនាឆ្នាំមហាសករាជពីចុល្ល�
     return ចុល្លសករាជ.into() + 565i128;
 }
 
+// មហាសករាជថ្មីនេះ សំដៅឆ្នាំដែលនឹងត្រូវផ្លាស់ប្ដូរក្នុងគ្រិស្តសករាជ
 fn គណនាឆ្នាំមហាសករាជថ្មីក្នុងគ្រិស្តសករាជ<
     T: Into<i128>,
 >(
@@ -155,28 +162,44 @@ fn គណនាឆ្នាំមហាសករាជថ្មីក្នុ�
     return gregorian_year.into() - 73i128;
 }
 
+// ចុល្លសករាជថ្មីនេះ សំដៅឆ្នាំដែលនឹងត្រូវផ្លាស់ប្ដូរក្នុងគ្រិស្តសករាជ
 pub fn គណនាឆ្នាំចុល្លសករាជថ្មីក្នុងគ្រិស្តសករាជ(
     gregorian_year: i128,
 ) -> i128 {
     return gregorian_year - 638;
 }
 
+/// ចុល្លសករាជថ្មីនេះ សំដៅឆ្នាំដែលនឹងត្រូវផ្លាស់ប្ដូរក្នុងគ្រិស្តសករាជដែលជាឆ្នាំតែមួយ ដែលពុទ្ធសករាជត្រូវផ្លាស់ប្ដូរដែរ
 pub fn គណនាឆ្នាំចុល្លសករាជថ្មីពីពុទ្ធសករាជថ្មី(
     ពុទ្ធសករាជ: i128,
 ) -> i128 {
     return ពុទ្ធសករាជ - 1182;
 }
 
+/// ពុទ្ធសករាជថ្មីនេះ សំដៅឆ្នាំដែលនឹងត្រូវផ្លាស់ប្ដូរក្នុងគ្រិស្តសករាជដែលជាឆ្នាំតែមួយ ដែលចុល្លសករាជត្រូវផ្លាស់ប្ដូរដែរ
+/// ពុទ្ធសករាជ និង ចុល្លសករាជ មិនផ្លាស់ប្ដូរក្នុងថ្ងៃតែមួយទេ
+/// ពោលគី ចុល្លសករាជប្ដូរនៅថ្ងៃឡើងស័ក ចំណែកពុទ្ធសករាជ គឺប្ដូរនៅថ្ងៃ១រោចខែពិសាខ ក្រោយវិសាខបូជា១ថ្ងៃ
+/// ព្រោះពុទ្ធសករាជ១ ចាប់ផ្ដើមរាប់បន្ទាប់ពីព្រះពុទ្ធបរិនិព្វាន
 pub fn គណនាឆ្នាំពុទ្ធសករាជថ្មីពីចុល្លសករាជថ្មី(
     ចុល្លសករាជ: i128,
 ) -> i128 {
     return ចុល្លសករាជ + 1182;
 }
 
+// បម្លែងពី Y-m-d ទៅជា NaiveDate
 pub fn parse_iso_date(d: &str) -> Result<NaiveDate, chrono::ParseError> {
     NaiveDate::parse_from_str(d, "%Y-%m-%d")
 }
 
+
+/// បម្លែងលេខទៅជាថ្ងៃប្រចាំសប្ដាហ៍
+/// 0 -> អាទិត្យ
+/// 1 -> ច័ន្ទ
+/// 2 -> អង្គារ
+/// 3 -> ពុធ
+/// 4 -> ព្រហស្បតិ៍
+/// 5 -> សុក្រ
+/// 6 -> សៅរ៍
 pub fn weekday_from_number(num: u8) -> Result<Weekday, String> {
     match num {
         0 => Ok(Weekday::Sat),
@@ -190,6 +213,9 @@ pub fn weekday_from_number(num: u8) -> Result<Weekday, String> {
     }
 }
 
+/// បម្លែងលេខជាថ្ងៃខែខ្មែរ
+/// 1 -> 15 ត្រូវជា ១ កើត ដល់ ១៥ កើត
+/// 16 -> 30 ត្រូវជា ១ រោច ដល់ ១៥ រោច
 pub fn lunar_day_from_number(num: u8) -> Result<LunarDay, String> {
     if num < 1 || num > 30 {
         return Err("Invalid day : {num}".to_owned());
@@ -336,33 +362,6 @@ pub enum LunarMonth {
 }
 
 impl LunarMonth {
-    pub fn to_number(&self) -> u8 {
-        match self {
-            LunarMonth::មិគសិរ => 1,
-            LunarMonth::បុស្ស => 2,
-            LunarMonth::មាឃ => 3,
-            LunarMonth::ផល្គុន => 4,
-            LunarMonth::ចេត្រ => 5,
-            LunarMonth::ពិសាខ => 6,
-            LunarMonth::ជេស្ឋ => 7,
-            LunarMonth::អាសាឍ => 8,
-            LunarMonth::បឋមាសាឍ => 9,
-            LunarMonth::ទុតិយាសាឍ => 10,
-            LunarMonth::ស្រាពណ៍ => 11,
-            LunarMonth::ភទ្របទ => 12,
-            LunarMonth::អស្សុជ => 13,
-            LunarMonth::កក្ដិក => 14,
-        }
-    }
-    pub fn compare(&self, another: LunarMonth) -> i8 {
-        if another == *self {
-            return 0;
-        } else if self.to_number() > another.to_number() {
-            return 1;
-        } else {
-            return -1;
-        }
-    }
     pub fn get_previous_month(&self, ចុល្លសករាជថ្មី: i128) -> Self {
         match self {
             Self::មិគសិរ => Self::កក្ដិក,
@@ -889,7 +888,7 @@ pub struct KhmerDate {
 }
 
 impl KhmerDate {
-    pub fn get_epoch() -> Self {
+    fn get_epoch() -> Self {
         KhmerDate {
             gregorian_date: NaiveDate::from_ymd_opt(1900, 1, 1).unwrap(),
             lunar_date: ត្រូវនឹងថ្ងៃ!(1 កើត ខែ បុស្ស),
@@ -904,6 +903,8 @@ impl KhmerDate {
 
     pub fn is_valid_date(&self) -> bool {
         let month = self.lunar_date.month.clone();
+        // គណនាឆ្នាំចុល្លសករាជថ្មីក្នុងគ្រិស្តសករាជ អាចមានបញ្ហាបើខែមិគសិរ ស្ថិតក្នុងចុងគ្រិស្តសករាជ
+        // តែសំណាងល្អ ដែលវាមិនប៉ះពាល់ដល់ការគណនាព្រោះមិគសិរ បុស្ស មាឃ ... ពិសាខ មានចំនួនថ្ងៃស្ថិរ
         let ចុល្លសករាជថ្មី = គណនាឆ្នាំចុល្លសករាជថ្មីក្នុងគ្រិស្តសករាជ(self.gregorian_date.year() as i128);
         let max_day_in_month = month.get_total_day(ចុល្លសករាជថ្មី);
         let day_in_month = self.lunar_date.day.រាប់ថ្ងៃពីដើមខែ();

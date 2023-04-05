@@ -75,9 +75,8 @@ mod tests {
             let ឈ្មោះថ្ងៃឡើងស័ក = _សុរិយាឡើងស័ក.គណនាឈ្មោះថ្ងៃឡើងស័ក();
             let ថ្ងៃឡើងស័ក = _សុរិយាឡើងស័ក.គណនាថ្ងៃឡើងស័ក();
             let ថ្ងៃខ្មែរឡើងស័ក = KhmerDate::from_khmer_date_time(ពុទ្ធសករាជថ្មី - 1, ថ្ងៃឡើងស័ក, None);
-            println!("Year: {:?}", year);
-            println!("Year: {:?}", ថ្ងៃខ្មែរឡើងស័ក);
-            assert_eq!(ឈ្មោះថ្ងៃឡើងស័ក, ថ្ងៃខ្មែរឡើងស័ក.gregorian_date.and_time(NaiveTime::from_num_seconds_from_midnight_opt(0, 0).unwrap()).weekday());
+
+            assert_eq!(ឈ្មោះថ្ងៃឡើងស័ក, ថ្ងៃខ្មែរឡើងស័ក.gregorian_date.and_time(NaiveTime::from_num_seconds_from_midnight_opt(0, 0).unwrap()).weekday(), "Year: {}, {:?}", year, ថ្ងៃខ្មែរឡើងស័ក);
         }
     }
 }
